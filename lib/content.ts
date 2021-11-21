@@ -2,8 +2,6 @@ import * as fs from 'fs/promises'
 import path from 'path'
 import {globby} from 'globby'
 
-// pages/nested/something.mdx -> nested/something
-
 const contentPath = 'pages'
 
 const getContentFiles = () =>
