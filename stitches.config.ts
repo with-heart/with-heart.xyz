@@ -13,10 +13,20 @@ export const {
 } = createStitches({
   theme: {
     fonts: {
-      system: 'system-ui',
+      body: 'system-ui',
     },
     colors: {
       ...gray,
     },
+  },
+})
+
+export const globalStyles = globalCss({
+  html: {
+    fontFamily: '$body',
+  },
+  '*': {
+    margin: 0,
+    padding: 0,
   },
 })
