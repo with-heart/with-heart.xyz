@@ -1,4 +1,5 @@
 import * as NextImage from 'next/image'
+import {globalStyles} from '../stitches.config'
 
 const OriginalNextImage = NextImage.default
 
@@ -16,3 +17,10 @@ export const parameters = {
     },
   },
 }
+
+export const decorators = [
+  (Story) => {
+    globalStyles()
+    return <Story />
+  },
+]
