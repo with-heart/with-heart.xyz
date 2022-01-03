@@ -22,13 +22,13 @@ export default function ContentPage({
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const content = await getAllContentSlugs()
+  const paths = content.map((slug) => ({
+    params: {slug},
+  }))
+
   return {
-    paths: content.map((slug) => ({
-      params: {
-        slug,
-      },
-    })),
-    fallback: false,
+    paths,
+    fallback: true,
   }
 }
 
