@@ -8,6 +8,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/colors": "^0.1.8",
+    "@stitches/react": "^1.2.6",
     "esbuild": "^0.13.15",
     "globby": "^12.0.2",
     "mdx-bundler": "^8.0.0",
