@@ -1,4 +1,4 @@
-import {gray} from '@radix-ui/colors'
+import {grayDark} from '@radix-ui/colors'
 import {createStitches} from '@stitches/react'
 
 export const {
@@ -16,7 +16,7 @@ export const {
       body: 'system-ui',
     },
     colors: {
-      ...gray,
+      ...grayDark,
     },
   },
 })
@@ -24,6 +24,10 @@ export const {
 export const globalStyles = globalCss({
   html: {
     fontFamily: '$body',
+  },
+  body: {
+    color: '$gray12',
+    backgroundColor: '$gray2',
   },
   '*': {
     margin: 0,
