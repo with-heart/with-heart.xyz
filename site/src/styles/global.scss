@@ -1,0 +1,11 @@
+@import url('modern-normalize/modern-normalize.css');
+
+html {
+  --box-sizing: border-box;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: var(--box-sizing);
+}
