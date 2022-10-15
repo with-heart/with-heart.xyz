@@ -2,5 +2,7 @@
   "name": "with-heart.xyz",
   "author": "with-heart <with.heart+git@pm.me>",
   "license": "MIT",
-  "scripts": {}
+  "scripts": {
+    "dev": "pnpm -r dev"
+  }
 }
