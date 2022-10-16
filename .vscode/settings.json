@@ -1,3 +1,6 @@
 {
   "eslint.workingDirectories": [{"pattern": "packages/*"}, {"pattern": "site"}],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  }
 }
