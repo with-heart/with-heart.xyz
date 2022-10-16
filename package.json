@@ -3,6 +3,18 @@
   "author": "with-heart <with.heart+git@pm.me>",
   "license": "MIT",
   "scripts": {
-    "dev": "pnpm -r dev"
+    "dev": "pnpm -r dev",
+    "postinstall": "preconstruct dev"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "preconstruct": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "dependencies": {
+    "@preconstruct/cli": "^2.2.2"
   }
 }
