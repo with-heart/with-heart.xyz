@@ -2,6 +2,7 @@
   "name": "with-heart.xyz",
   "author": "with-heart <with.heart+git@pm.me>",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "dev": "pnpm -r dev",
     "postinstall": "preconstruct dev"
