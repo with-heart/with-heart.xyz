@@ -1,0 +1,121 @@
+---
+title: 'Using MDX with Next.js'
+description: 'Notes from configuring MDX on with-heart.xyz'
+status: 'seedling'
+---
+
+# {title}
+
+<p className="subtitle">{description}</p>
+
+## Initial installation
+
+Adds support for `.mdx` files. Stores `mdx`-specific configuration in
+`mdx.config.mjs`.
+
+- `pnpm i -D @next/mdx @mdx-js/loader @mdx-js/react`
+- create `mdx.config.mjs`:
+
+```ts
+import withMdx from '@next/mdx'
+
+export default withMdx({
+  extension: /\.mdx?$/,
+})
+```
+
+- rename `next.config.js` -> `next.config.mjs`
+- `next.config.mjs`:
+
+```ts
+import withMdx from './mdx.config.mjs'
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // default extensions + md + mdx
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+  reactStrictMode: true,
+  swcMinify: true,
+}
+
+export default withMdx(nextConfig)
+```
+
+## Export frontmatter as variables
+
+We can export frontmatter as variables that can be accessed within `mdx`.
+
+```md
+---
+title: 'Some Title'
+---
+
+# {title}
+```
+
+yields something like
+
+```html
+<h1>Some Title</h1>
+```
+
+We'll use [`remark-frontmatter`](https://github.com/remarkjs/remark-frontmatter)
+and
+[`remark-mdx-frontmatter`](https://github.com/remcohaszing/remark-mdx-frontmatter)
+to accomplish this.
+
+- `pnpm i -D remark-frontmatter remark-mdx-frontmatter`
+- update `mdx.config.mjs`:
+
+```js
+import withMdx from '@next/mdx'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
+
+export default withMdx({
+  extension: \/.mdx?$/,
+  options: {
+    remarkPlugins: [
+      [remarkFrontmatter],
+      [remarkMdxFrontmatter]
+    ]
+  }
+})
+```
+
+## Code samples with VSCode syntax and TS compiler information
+
+[`shiki-twoslash`](https://shikijs.github.io/twoslash/) and
+[`remark-shiki-twoslash`](https://github.com/shikijs/twoslash/tree/main/packages/remark-shiki-twoslash)
+are made specifically for this purpose. Code blocks in `ts twoslash` fences work
+much like the
+[TypeScript Playground editor](https://www.typescriptlang.org/play).
+
+- `pnpm i -D @mdx-js/mdx rehype-raw remark-shiki-twoslash`
+- update `mdx.config.mjs`:
+
+```js
+import {nodeTypes} from '@mdx-js/mdx'
+import withMdx from '@next/mdx'
+import reypeRaw from 'rehype-raw'
+import remarkShikiTwoslash from 'remark-shiki-twoslash'
+
+/** @type {import('remark-shiki-twoslash').Options} */
+const remarkShikiTwoslashOptions = {}
+
+export default withMdx({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [[remarkShikiTwoslash.default, remarkShikiTwoslashOptions]],
+    rehypePlugins: [
+      // https://github.com/mdx-js/mdx/issues/1820#issuecomment-970430877
+      [rehypeRaw, {passThrough: nodeTypes}],
+    ],
+  },
+})
+```
+
+- create `styles/shiki.css`
+- [paste the CSS from #3](https://github.com/shikijs/twoslash/tree/main/packages/remark-shiki-twoslash#plugin-setup)
+  into `styles/shiki.css`
+- add `import '../styles/shiki.css'` to `_app.tsx`
