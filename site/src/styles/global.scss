@@ -154,15 +154,6 @@ p {
   }
 }
 
-pre {
-  code {
-    &::before,
-    &::after {
-      content: unset;
-    }
-  }
-}
-
 :is(p, ol, ul, pre) {
   margin-block-end: var(--space4);
 
@@ -190,6 +181,13 @@ pre {
 :where(pre, p, h1, h2, h3, h4, blockquote, ul, ol) {
   margin: 0;
   margin-block: 0;
+}
+
+.join-code {
+  justify-self: center;
+}
+pre:has(+ .join-code) {
+  margin-block-end: 0;
 }
 
 /* shiki style overrides */
@@ -246,6 +244,17 @@ pre {
       path,
       line {
         stroke: var(--slate11);
+      }
+    }
+  }
+}
+
+.twoslash-error {
+  .twoslash-exception-message {
+    code {
+      &::before,
+      &::after {
+        content: unset;
       }
     }
   }

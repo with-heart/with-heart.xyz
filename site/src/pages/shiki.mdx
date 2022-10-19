@@ -1,0 +1,404 @@
+---
+title: 'Intelligent TypeScript Code Blocks with MDX and Shiki Twoslash'
+description:
+  'How to use `mdx` and `shiki-twoslash` to add a VS Code-like experience to
+  code blocks'
+status: 'seedling'
+---
+
+# {title}
+
+<p className="subtitle">{description}</p>
+
+## What is `shiki-twoslash`?
+
+[`shiki-twoslash`] is a library that combines the functionality of two
+libraries:
+
+- [`shiki`]: a syntax highlighter that produces HTML that looks just like code
+  in VS Code
+- [`twoslash`]: a markup syntax for TypeScript code blocks powered by the
+  TypeScript compiler (used by the TypeScript website)
+
+`shiki-twoslash` allows us to produce TypeScript code blocks that are as
+beautiful as they are powerful:
+
+```ts twoslash
+const isString = (x: unknown): x is string => typeof x === 'string'
+const isNumber = (x: unknown): x is number => typeof x === 'number'
+const isBoolean = (x: unknown): x is boolean => typeof x === 'boolean'
+
+declare const thing: unknown
+
+if (isString(thing)) {
+  thing
+  // ^?
+} else if (isNumber(thing)) {
+  thing
+  // ^?
+} else if (isBoolean(thing)) {
+  thing
+  // ^?
+}
+```
+
+(Be sure to hover over the code block above to see the TypeScript
+compiler-powered goodness)
+
+This functionality enables us to bring otherwise boring and static code blocks
+to life!
+
+Let's take a look at how to add it to your MDX-powered blog and how to use it!
+
+## Markup
+
+`shiki-twoslash` hides a significant amount of complexity behind a few types of
+markup. In this section, we'll look at how to use some of them.
+
+By the way, in order to use these `twoslash` features, you need to create a code
+block inside a `ts twoslash` fence:
+
+````
+```ts twoslash
+// TypeScript compiler-driven code goes here!
+```
+````
+
+### Queries
+
+Queries allow us to query the TypeScript compiler for information.
+
+#### `^?`
+
+The `^?` query tells the TypeScript compiler to display tooltip information
+about the identifier above that `^` is pointing at.
+
+````
+```ts twoslash
+const person = 'piablo'
+//    ^?
+```
+````
+
+<JoinCode />
+
+```ts twoslash
+const person = 'piablo'
+//    ^?
+```
+
+````
+```ts twoslash
+const addOne = (n: number) => n + 1
+//    ^?
+```
+````
+
+<JoinCode />
+
+```ts twoslash
+const addOne = (n: number) => n + 1
+//    ^?
+```
+
+#### `^|`
+
+The `^?` query tells the TypeScript compiler to display an autocomplete dropdown
+at the point that `^` points to.
+
+It requires the use of a `// @noErrors` comment at the top of the block.
+
+````
+```ts twoslash
+// @noErrors
+const string = 'hello world'
+'hello'.to
+//        ^|
+```
+````
+
+<JoinCode />
+
+```ts twoslash
+// @noErrors
+const string = 'hello world'
+'hello'.to
+//        ^|
+```
+
+### Highlighting code
+
+`shiki-twoslash` can highlight specific lines of code by attaching line numbers
+to the code fence:
+
+````
+```ts twoslash {1, 3}
+const highlightedLine = {
+  notHighlighted: true,
+  highlighted: true,
+}
+```
+````
+
+<JoinCode />
+
+```ts twoslash {1, 3}
+const highlightedLine = {
+  notHighlighted: true,
+  highlighted: true,
+}
+```
+
+### Displaying errors
+
+`shiki-twoslash` can render inline errors produced by the TypeScript compiler.
+
+By default, Shiki will throws an error and displays a debug component for
+TypeScript compiler errors. This helps protect us from writing incorrect code
+samples.
+
+For example, if we try to render the following code block:
+
+````
+```ts twoslash
+const addOne = (n: number) => n + 1
+addOne('hello!')
+```
+````
+
+The code sample would throw a type error (because we can't use `hello!` as a
+`number`):
+
+```
+Errors were thrown in the sample, but not included in an errors tag
+
+These errors were not marked as being expected: 2345.
+Expected: // @errors: 2345
+```
+
+`shiki-twoslash` helpfully explains exactly how to resolve the issue:
+`// @error: 2345`
+
+Let's add that to our code sample:
+
+````
+```ts twoslash
+// @errors: 2345
+const addOne = (n: number) => n + 1
+addOne('hello!')
+```
+````
+
+And now it renders the error inline:
+
+```ts twoslash
+// @errors: 2345
+const addOne = (n: number) => n + 1
+addOne('hello!')
+```
+
+### Hiding irrelevant code
+
+`shiki-twoslash` offers the `---cut---` markup which allows us to hide all of
+the code before that line in the produced code sample.
+
+This allows us to write _correct_ code (code that can be compiled) while only
+showing part of the code, or to avoid repeating the same code across multiple
+code samples.
+
+Here's an example:
+
+````
+```ts twoslash
+interface User {
+  name: string
+}
+// ---cut---
+const bluePanda: User = {
+  name: 'BluePanda',
+}
+```
+````
+
+<JoinCode />
+
+```ts twoslash
+interface User {
+  name: string
+}
+// ---cut---
+const bluePanda: User = {
+  name: 'BluePanda',
+}
+```
+
+This is helpful if you're iteratively telling a story about some code by
+introducing parts across multiple code blocks:
+
+```ts twoslash
+// first we define our type...
+interface User {
+  name: string
+}
+```
+
+<JoinCode />
+
+```ts twoslash
+interface User {
+  name: string
+}
+
+// then we assign it to a variable...
+const user: User = {name: 'BluePanda'}
+```
+
+<JoinCode />
+
+```ts twoslash
+interface User {
+  name: string
+}
+
+const user: User = {name: 'BluePanda'}
+
+// now we have a user with a `name`!
+console.log(user.name)
+```
+
+Did we really need to include the definition for `User` in every code block?
+
+To make the compiler happy? Yes.
+
+For our readers? Nah.
+
+If we used `---cut---` instead:
+
+````
+```ts twoslash
+interface User {
+  name: string
+}
+
+const user: User = {name: 'BluePanda'}
+// ---cut---
+
+// now we have a user with a `name`!
+console.log(user.name)
+```
+````
+
+The compiler is happy and we only see the relevant code:
+
+```ts twoslash
+interface User {
+  name: string
+}
+
+const user: User = {name: 'BluePanda'}
+// ---cut---
+
+// now we have a user with a `name`!
+console.log(user.name)
+```
+
+If you think `---cut---` is useful, wait till you see the next section!
+
+### Reusing code blocks
+
+`shiki-twoslash` gives us the ability to create virtual code blocks that can be
+fully or partially re-used within other code blocks.
+
+To reuse a block, use `twoslash include <name>` (notice that lack of `ts`) in
+the block's code fence:
+
+````
+```twoslash include box
+interface Box<T> {
+  thing: T
+}
+```
+````
+
+Then reference the block by name using `@include` in a `ts twoslash` block:
+
+````
+```ts twoslash
+// @include: box
+```
+````
+
+If used correctly, we see the `Box` definition:
+
+```twoslash include box
+interface Box<T> {
+  thing: T
+}
+```
+
+```ts twoslash
+// @include: box
+```
+
+`shiki-twoslash` treats the included code like it's part of the code block it's
+imported into!
+
+This means we can use the included code and `---cut---` to make the compiler
+happy without showing the included code.
+
+````
+```ts twoslash
+// @include: box
+// ---cut---
+const box: Box<string> = {thing: 'hello!'}
+```
+````
+
+<JoinCode />
+
+```ts twoslash
+// @include: box
+// ---cut---
+const box: Box<string> = {thing: 'hello!'}
+```
+
+We can also include only part of a code sample by using `// - <location-name>`
+
+````
+```twoslash include main
+type Scream<T extends string> = Uppercase<T>
+// - scream
+type Whisper<T extends string> = Lowercase<T>
+// - both
+```
+
+```ts twoslash
+// @include: main-scream
+```
+
+```ts twoslash
+// @include: main-both
+```
+````
+
+<JoinCode />
+
+```twoslash include main
+type Scream<T extends string> = Uppercase<T>
+// - scream
+type Whisper<T extends string> = Lowercase<T>
+// - both
+```
+
+```ts twoslash
+// @include: main-scream
+```
+
+```ts twoslash
+// @include: main-both
+```
+
+[`shiki-twoslash`]: https://github.com/shikijs/twoslash
+[`shiki`]: https://shiki.matsu.io/
+[`twoslash`]:
+  https://github.com/microsoft/TypeScript-Website/tree/v2/packages/ts-twoslasher
