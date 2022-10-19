@@ -1,0 +1,57 @@
+/*
+Thanks to https://ryanmulligan.dev/blog/layout-breakouts/ for the grid pattern
+used here.
+*/
+
+// grid layout with dynamic margins and multiple named content widths. use
+// `grid-column: full` for full width, `feature` for wide width, `popout` for a
+// width slightly larger than the content, and `content` (default) for a `60ch`
+// container
+.layout {
+  --gap: clamp(1rem, 6vw, 3rem);
+  --full: minmax(var(--gap), 1fr);
+  --content: min(60ch, 100% - var(--gap) * 2);
+  --popout: minmax(0, 2rem);
+  --feature: minmax(0, 5rem);
+
+  display: grid;
+  grid-template-columns:
+    [full-start] var(--full)
+    [feature-start] var(--feature)
+    [popout-start] var(--popout)
+    [content-start] var(--content) [content-end]
+    var(--popout) [popout-end]
+    var(--feature) [feature-end]
+    var(--full) [full-end];
+
+  // default any child to `content`
+  :where(& > *) {
+    grid-column: content;
+  }
+
+  .popout {
+    grid-column: popout;
+  }
+
+  .feature {
+    grid-column: feature;
+  }
+
+  .full {
+    grid-column: full;
+  }
+
+  header {
+    grid-column: feature;
+    justify-self: center;
+  }
+
+  blockquote {
+    grid-column: feature;
+  }
+
+  pre {
+    grid-column: feature;
+    justify-self: center;
+  }
+}
