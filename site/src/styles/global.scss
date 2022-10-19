@@ -1,11 +1,252 @@
 @import url('modern-normalize/modern-normalize.css');
+@import url('@radix-ui/colors/slate.css');
+@import './shiki.scss';
+
+:root {
+  // font fam
+  --sans-serif: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --monospace: 'Source Code Pro', 'JetBrains Mono', Menlo, Monaco, Consolas,
+    Courier New, monospace;
+
+  // font size
+  --font-sm: 1.25em;
+  --font-md: 1.5em;
+  --font-lg: 1.7em;
+  --font-xl: 2em;
+
+  // color
+  --bg: var(--slate1);
+  --text: var(--slate12);
+  --text-low-contrast: var(--slate11);
+
+  // spacing
+  --space0: 0rem;
+  --space1: 0.5rem;
+  --space2: 1rem;
+  --space3: 1.5rem;
+  --space4: 2rem;
+  --space5: 2.5rem;
+  --space6: 3rem;
+  --space7: 3.5rem;
+  --space8: 4rem;
+}
 
 html {
+  line-height: 1.77778;
+  font-size: var(--font-md);
+  overscroll-behavior-x: contain;
   --box-sizing: border-box;
 }
 
-*,
-*::after,
-*::before {
-  box-sizing: var(--box-sizing);
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--sans-serif);
+}
+
+* {
+  border-width: 0;
+  border-style: solid;
+  border-color: var(--slate6);
+
+  &,
+  &::before,
+  &::after {
+    box-sizing: var(--box-sizing);
+  }
+}
+
+a {
+  color: inherit;
+  font-weight: 600;
+}
+
+blockquote {
+  background-color: var(--slate4);
+  border: 0;
+  border-left: 0.5em solid var(--slate7);
+  font-style: italic;
+}
+
+code {
+  font-family: var(--monospace);
+  font-weight: 500;
+  background-color: var(--slate4);
+  padding-inline: 2px;
+
+  &::before,
+  &::after {
+    content: '`';
+  }
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: var(--font-xl);
+  font-weight: 800;
+  margin-block-end: var(--space5);
+
+  &:has(+ .subtitle) {
+    margin-block-end: var(--space3);
+  }
+}
+
+h2 {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  margin-block-end: var(--space4);
+}
+
+h3,
+h4 {
+  line-height: 1.5;
+  margin-block-end: var(--space3);
+}
+
+h4 {
+  font-weight: 500;
+}
+
+header {
+  font-size: var(--font-xl);
+  margin-block-end: var(--space5);
+  & a {
+    text-decoration: none;
+  }
+}
+
+hr {
+  border-color: var(--slate8);
+  border-top-width: 1px;
+  width: 50%;
+  margin-block: var(--space6);
+}
+
+li {
+  margin-block-end: var(--space1);
+  padding-inline-start: var(--space1);
+
+  &:last-of-type {
+    margin-block-end: 0;
+  }
+
+  &::marker {
+    color: var(--slate11);
+  }
+}
+
+ol,
+ul {
+  padding-inline-start: 1em;
+}
+
+p {
+  &:has(+ :is(ul, ol)) {
+    margin-block-end: var(--space3);
+  }
+}
+
+pre {
+  code {
+    &::before,
+    &::after {
+      content: unset;
+    }
+  }
+}
+
+:is(p, ol, ul, pre) {
+  margin-block-end: var(--space4);
+
+  &:has(+ :is(h1, h2, h3, h4)) {
+    margin-block-end: var(--space5);
+  }
+
+  &:has(+ pre) {
+    margin-block-end: var(--space3);
+  }
+}
+
+.subtitle {
+  color: var(--text-low-contrast);
+  font-size: var(--font-sm);
+  font-weight: 400;
+  margin-block-end: var(--space4);
+}
+
+:has(+ hr) {
+  margin-block-end: 0;
+}
+
+// 0-priority margins reset
+:where(pre, p, h1, h2, h3, h4, blockquote, ul, ol) {
+  margin: 0;
+  margin-block: 0;
+}
+
+/* shiki style overrides */
+
+pre {
+  width: min-content;
+  border-width: 1px;
+  border-color: var(--slate8);
+  padding: var(--space2) var(--space4);
+  font-size: 0.9em;
+
+  code {
+    font-size: 1em;
+    font-weight: 400;
+    background-color: unset;
+
+    &::before,
+    &::after {
+      content: unset;
+    }
+  }
+
+  &.twoslash {
+    border-color: var(--slate8);
+    border-width: 1px;
+  }
+
+  .error {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    margin-block: 10px;
+    padding-inline: var(--space2);
+
+    .code {
+      display: inline-block;
+
+      &::before {
+        content: ' ts(';
+      }
+      &::after {
+        content: ')';
+      }
+    }
+  }
+
+  .error-behind {
+    display: none;
+  }
+
+  .logger {
+    svg {
+      path,
+      line {
+        stroke: var(--slate11);
+      }
+    }
+  }
 }
