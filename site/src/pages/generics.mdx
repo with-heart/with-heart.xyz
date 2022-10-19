@@ -260,7 +260,10 @@ Their syntax is different, but their purpose is the same:
 
 Great! But what does that mean at a practical level?
 
-Returning to our `Box` example, it means we can use generic types to enable:
+---
+
+Returning to our `Box` example, it means that we can use generic types to
+enable:
 
 - `Box` to know the specific type of `thing` it's storing
 - `getThingFromBox` to know what type is stored inside of each `Box` it
@@ -270,7 +273,7 @@ First we'll make `Box` generic:
 
 ```twoslash include box-generic
 // `Box` accepts type parameter `T`
-interface Box<T> {
+type Box<T> = {
   // `thing` is whatever `T` is
   thing: T
 }
@@ -293,7 +296,10 @@ const userBox: Box<{name: string}> = {
 
 Yay! We've enabled `Box` to know the type of `thing` it's storing!
 
-Now how do we get `getThingFromBox` to be aware of that?
+`Box<T>` feels a lot like calling a function! Except it takes and returns a
+type.
+
+Now, how do we make `getThingFromBox` aware of the type of `Box` it receives?
 
 You guessed it: MAKE IT GENERIC
 
@@ -347,6 +353,9 @@ const numberThing = putAThingInABox(42)
 
 Wild!
 
+TODO: Write more about what generics are. If you'd like to see that, be sure to
+[let me know on Twitter (@grow_love)](https://twitter.com/grow_love)!
+
 ---
 
 <p style={{fontSize: 'var(--font-xl)', justifySelf: 'center'}}>🧘‍♂️</p>
@@ -357,22 +366,23 @@ overwhelming.
 **And that's totally okay**! I've been using generic types for a long time now
 and I still get lost in them.
 
-Keep learning and playing and practicing! Don't be afraid to ask for help!
+Keep learning and playing and practicing! Don't be afraid to ask for help! And
+most importantly: try and **teach what you're learning to others**!
 
-And most importantly: try and **teach what you're learning to others**! Teaching
-is a great way to discover where your knowledge is limited! And someone out
-there is a little bit behind you in skill and knowledge and would love to read
-about what you're learning right now.
+Teaching is a great way to discover where your knowledge is limited! And someone
+out there is a little bit behind you in skill and knowledge and would love to
+read about what you're learning right now.
 
-You'll find yourself feeling much more confident with them in no time.
+If you keep at it, you'll find yourself feeling much more confident with
+generics in no time.
 
 <p style={{fontSize: 'var(--font-xl)', justifySelf: 'center'}}>🧘‍♂️</p>
 
 ---
 
-## Why are generics important?
+## Why are generic types important?
 
-## How do we use generics?
+## How do we use generic types?
 
 ### Generic interfaces
 
@@ -487,6 +497,13 @@ thing
 
 #### Type predicates
 
+Type predicates are functions that return `boolean` with a special return type
+of `arg is T`, where the type of `arg` is narrowed to `T` if the predicate
+passes.
+
+In this example, we have three type predicates for `string`, `number`, and
+`boolean`.
+
 ```ts twoslash
 const isString = (x: unknown): x is string => typeof x === 'string'
 const isNumber = (x: unknown): x is number => typeof x === 'number'
@@ -510,9 +527,118 @@ if (isString(thing)) {
 }
 ```
 
-### Creating type utilities
+The following example is a functional combinatorial logic system (`is`, `and`,
+and `or`) created using type predicates and type inference.
 
-#### Creating types that map from type `A` to type `B`
+The resulting types are inferred by `and` (`A & B`) and `or` (`A | B`).
+
+```ts twoslash
+// @errors: 2339
+
+interface Thing {
+  id: string
+}
+
+/** A thing with a `string` */
+interface StringThing extends Thing {
+  string: string
+}
+
+/** A thing with a `number` */
+interface NumberThing extends Thing {
+  number: number
+}
+
+/** A thing with a `boolean` */
+interface BooleanThing extends Thing {
+  boolean: boolean
+}
+
+/**
+ * Type predicate for `Input` -> `Output` using a `boolean` callback that
+ * accepts `Input`.
+ *
+ * @example
+ * const isString = is<any, string>(x => typeof x === 'string')
+ */
+const is =
+  <Input, Output extends Input>(callback: (input: Input) => boolean) =>
+  (input: Input): input is Output =>
+    callback(input)
+
+/**
+ * Type predicate for `Input` -> `A & B` that validates that `input` passes both
+ * `a` and `a` type predicates.
+ */
+const and = <Input, A extends Input, B extends Input>(
+  a: (input: Input) => input is A,
+  b: (input: Input) => input is B,
+) => is<Input, A & B>((input) => a(input) && b(input))
+
+/**
+ * Type predicate for `Input` -> `A | B` that validates that `input` passes
+ * either `a` or `a` type predicates.
+ */
+const or = <Input, A extends Input, B extends Input>(
+  a: (input: Input) => input is A,
+  b: (input: Input) => input is B,
+) => is<Input, A | B>((input) => a(input) && b(input))
+
+const isStringThing = is<Thing, StringThing>((thing) => 'string' in thing)
+const isNumberThing = is<Thing, NumberThing>((thing) => 'number' in thing)
+const isBooleanThing = is<Thing, BooleanThing>((thing) => 'boolean' in thing)
+
+declare const thing: Thing
+
+if (isStringThing(thing)) {
+  thing
+  // ^?
+} else if (isNumberThing(thing)) {
+  thing
+  // ^?
+} else if (isBooleanThing(thing)) {
+  thing
+  // ^?
+}
+
+const isStringAndNumberThing = and(isStringThing, isNumberThing)
+const isNumberAndBooleanThing = and(isNumberThing, isBooleanThing)
+
+if (isStringAndNumberThing(thing)) {
+  thing
+  // ^?
+  thing.string
+  //    ^?
+  thing.number
+  //    ^?
+  thing.boolean
+  //    ^?
+} else if (isNumberAndBooleanThing(thing)) {
+  thing
+  // ^?
+}
+
+const isStringOrNumberThing = or(isStringThing, isNumberThing)
+const isNumberOrBooleanThing = or(isNumberThing, isBooleanThing)
+
+if (isStringOrNumberThing(thing)) {
+  thing
+  // ^?
+} else if (isNumberOrBooleanThing(thing)) {
+  thing
+  // ^?
+}
+```
+
+### Type utilities
+
+In the same way that functions can be used to create utility functions that
+offload complexity from other functions, generic types can be used to create
+utility types that offload type complexity from other types.
+
+This means we can create types that create new types from other types.
+
+#### Types that map from type `A` to type `B`
 
 Let's say we have `enum` types `Words` and `Numbers`:
 
