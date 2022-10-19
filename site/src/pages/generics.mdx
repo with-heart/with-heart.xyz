@@ -1,0 +1,703 @@
+---
+title: 'Generic Types'
+description: "What they are, why they're important, and how to use them."
+status: 'seedling'
+---
+
+# {title}
+
+<p className="subtitle">{description}</p>
+
+```ts twoslash
+type Hello<String extends string> = `Hello ${String}`
+type HelloWorld = Hello<'World'>
+//   ^?
+type HelloRopats = Hello<'Ropats'>
+//   ^?
+```
+
+---
+
+## What are generic types?
+
+In order to talk about generics, we should first talk about functions.
+
+Functions are awesome, aren't they?
+
+- chunks of logic that can be used repeatedly
+- define parameters that can be passed in as arguments
+- they might even return a value!
+
+```ts twoslash
+//             |--parameters--|
+function scream(string: string) {
+  //     |------return------|
+  return string.toUpperCase()
+}
+scream('wisety') // WISETY
+scream('kempsterrrr') // KEMPSTERRRR
+scream('codingwithmanny') // CODINGWITHMANNY
+```
+
+Functions are a foundational building block of code!
+
+They allow us to breathe life into the logic of our system, breaking it apart
+into more digestible and reusable (and named!) pieces.
+
+```ts twoslash
+interface FormValues {
+  /** The user's email */
+  email?: string
+  /** The user's password */
+  password?: string
+}
+
+// https://regex101.com/r/gwj6UD/1
+const validEmail = /(\w|[.+])+@\w+\.\w+/
+
+const hasLength = (string?: string) => string?.length ?? 0 > 0
+const isValidEmail = (string?: string) => !!string && validEmail.test(string)
+
+function validateFormValues(values: FormValues) {
+  if (!hasLength(values.email)) {
+    return 'email is required'
+  }
+
+  if (!hasLength(values.password)) {
+    return 'password is required'
+  }
+
+  if (!isValidEmail(values.email)) {
+    return `'${values.email}' is not a valid email`
+  }
+}
+```
+
+Functions can serve as a pipeline that values pass through, changing shape as
+they go.
+
+```ts twoslash
+const scream = (string: string) => string.toUpperCase()
+const exclaim = (string: string) => `${string}!!!`
+const flipTable = (string: string) => `${string} (ノಠ益ಠ)ノ彡┻━┻`
+
+console.log(flipTable(exclaim(scream('pbillingsby'))))
+// "PBILLINGSBY!!! (ノಠ益ಠ)ノ彡┻━┻"
+```
+
+Okay, you get it. Functions are incredible and the world needs more of them!
+
+Let's move on to thinking about something entirely different: the _type_ of
+functions.
+
+---
+
+All of the functions we've defined so far have types attached to their
+parameters, but did you know they also have a hidden return type?
+
+Let's rewrite the last example with explicit return types:
+
+```ts twoslash
+//                              |return|
+const scream = (string: string): string => string.toUpperCase()
+const exclaim = (string: string): string => `${string}!!!`
+const flipTable = (string: string): string => `${string} (ノಠ益ಠ)ノ彡┻━┻`
+```
+
+If a return type isn't defined, TypeScript is smart enough to _infer_ the return
+type of a function based on the type of the values it returns.
+
+Hover over the function names to see the inferred return type:
+
+```ts twoslash
+const returnsString = () => ''
+const returnsNumber = () => 0
+const returnsBoolean = () => false
+const returnsStringArray = () => ['hello', 'world']
+const returnsVoid = () => {}
+const returnsHelloWorldOrUndefined = () => {
+  if (Math.random() > 0.5) {
+    return 'hello world!'
+  }
+}
+```
+
+Neat!
+
+We can also define function types using the `type` and `interface` keywords:
+
+```ts twoslash
+// a `Double` function takes a `number` and returns a `number`
+type Double = (n: number) => number
+
+// `double` is of type `Double`, so it takes a `number` and returns a `number`
+const double: Double = (n) => n * 2
+```
+
+Take a second to notice how similar the `type` body is to the function body:
+
+```ts
+Double: (n: number) => number
+double: (n) => n * 2
+```
+
+This example exposes us to two important details:
+
+- the `type` knows that we receive a `number` argument and return a `number`,
+  but it doesn't know anything about the logic behind `number` -> `number`
+- the `const` knows that it receives `n` and returns `n * 2`, but it doesn't
+  know the types of `n` and `n * 2` (or well... it does know the types, but only
+  because `Double` knows them)
+
+To put it another way: types guide our values and values inform our types, but
+they're entirely separate systems.
+
+It's an important separation to be aware of! We can easily run into situations
+where our types are telling us one thing but our values are telling us something
+entirely different:
+
+```ts twoslash
+// @errors: 2345
+
+const x = {} as any
+const y = {}
+
+const isPositiveNumber = (number: number) => number > 0
+
+isPositiveNumber(x) // this shouldn't be okay, but we used `any`!
+isPositiveNumber(y)
+```
+
+---
+
+Let's look at one more example before we get into generics. Imagine a `Box` type
+that stores a `thing`, where `thing` can be anything.
+
+```twoslash include box
+interface Box {
+  thing: any
+}
+```
+
+```ts twoslash
+// @include: box
+```
+
+Now let's imagine we have a function `getThingFromBox` that accepts a `Box` and
+returns the `thing` inside of it:
+
+```ts twoslash
+// @include: box
+// ---cut---
+
+const getThingFromBox = (box: Box) => box.thing
+//    ^?
+```
+
+Look at the inferred return type of `getThingFromBox`. Since we defined the type
+of `thing` to `any`, returning `box.thing` returns a type of `any`!
+
+Which is an acceptable situation for our type system. But is it an acceptable
+situation for the _users_ of `Box`?
+
+Not so much:
+
+```ts twoslash
+// @include: box
+const getThingFromBox = (box: Box) => box.thing
+// ---cut---
+
+const stringBox: Box = {thing: 'string'}
+const string = getThingFromBox(stringBox)
+//    ^?
+
+const numberBox: Box = {thing: 69}
+const number = getThingFromBox(numberBox)
+//    ^?
+```
+
+If we put a `string` or a `number` in a `Box`, we expect to get a `string` or a
+`number` back out of it right?
+
+Well what if we manually add a return type?
+
+```ts twoslash
+// @errors: 2322
+// @include: box
+// ---cut---
+
+const getThingFromBox = (box: Box): string => box.thing
+
+const string: string = getThingFromBox({thing: 'hello world!'})
+//    ^?
+const number: number = getThingFromBox({thing: 420})
+```
+
+Okay.
+
+Let's think about what we'd need for this to work:
+
+- `Box` to know the exact type of `thing` it's storing
+- `getThingFromBox` to know what type is stored inside of each `Box` it
+  receives, and to return that type
+
+Okay, it's time to say it: **we need generic types!**
+
+---
+
+You're finally ready to learn a little secret:
+
+`functions:values::generics:types` (functions are to values as generics are to
+types)
+
+To put it another way: generics are the functions of the types world.
+
+Their syntax is different, but their purpose is the same:
+
+- accept external input (parameters)
+- do stuff in the body
+- maybe return something
+
+Great! But what does that mean at a practical level?
+
+Returning to our `Box` example, it means we can use generic types to enable:
+
+- `Box` to know the specific type of `thing` it's storing
+- `getThingFromBox` to know what type is stored inside of each `Box` it
+  receives, and to return that type
+
+First we'll make `Box` generic:
+
+```twoslash include box-generic
+// `Box` accepts type parameter `T`
+interface Box<T> {
+  // `thing` is whatever `T` is
+  thing: T
+}
+
+const stringBox: Box<string> = {thing: 'thing in a box'}
+const numberBox: Box<number> = {thing: 1}
+const fnBox: Box<() => void> = {
+  thing: () => {
+    console.log('hello from inside a box!')
+  },
+}
+const userBox: Box<{name: string}> = {
+  thing: {name: 'hamza'},
+}
+```
+
+```ts twoslash
+// @include: box-generic
+```
+
+Yay! We've enabled `Box` to know the type of `thing` it's storing!
+
+Now how do we get `getThingFromBox` to be aware of that?
+
+You guessed it: MAKE IT GENERIC
+
+```ts twoslash
+// @errors: 2345
+// @include: box-generic
+// ---cut---
+
+// generic parameter `Thing` defines the type of `thing` within `box`, and the
+// return type too
+const getThingFromBox = <Thing>(box: Box<Thing>): Thing => box.thing
+
+// because `box` is `Box<Thing>`, typescript infers the type of `Thing` from
+// the type of the `box` argument
+
+// `stringBox` = `Box<string>`
+// `Thing` = `string`
+getThingFromBox(stringBox)
+// ^?
+
+const stringThing = getThingFromBox(stringBox)
+//    ^?
+const numberThing = getThingFromBox(numberBox)
+//    ^?
+const fnThing = getThingFromBox(fnBox)
+//    ^?
+const userThing = getThingFromBox(userBox)
+//    ^?
+
+// we can also provide a type argument if we want
+getThingFromBox<string>(stringBox)
+getThingFromBox<number>(stringBox)
+```
+
+That's pretty cool isn't it?
+
+We could also enable users to create a `Box` without having to specify `Box<T>`
+directly (type inference) by creating another generic function!
+
+```ts twoslash
+// @include: box-generic
+// ---cut---
+
+const putAThingInABox = <Thing>(thing: Thing): Box<Thing> => ({thing})
+
+const stringThing = putAThingInABox('string in a thing in a box')
+//    ^?
+const numberThing = putAThingInABox(42)
+//    ^?
+```
+
+Wild!
+
+---
+
+<p style={{fontSize: 'var(--font-xl)', justifySelf: 'center'}}>🧘‍♂️</p>
+
+If you've not experienced generic types before, this might feel a little
+overwhelming.
+
+**And that's totally okay**! I've been using generic types for a long time now
+and I still get lost in them.
+
+Keep learning and playing and practicing! Don't be afraid to ask for help!
+
+And most importantly: try and **teach what you're learning to others**! Teaching
+is a great way to discover where your knowledge is limited! And someone out
+there is a little bit behind you in skill and knowledge and would love to read
+about what you're learning right now.
+
+You'll find yourself feeling much more confident with them in no time.
+
+<p style={{fontSize: 'var(--font-xl)', justifySelf: 'center'}}>🧘‍♂️</p>
+
+---
+
+## Why are generics important?
+
+## How do we use generics?
+
+### Generic interfaces
+
+```ts twoslash
+// @errors: 2739 2322
+interface Item<Kind extends string> {
+  // uses the `Kind` param to create a `kind` property
+  kind: Kind
+}
+
+interface StringItem extends Item<'String'> {
+  // `StringItem` has a `kind` property of type `'String'`
+  string: string
+}
+
+const stringItem: StringItem = {
+  kind: 'String',
+  string: 69,
+}
+
+interface NumberItem extends Item<'Number'> {
+  number: number
+}
+
+const numberItem: NumberItem = {
+  kind: 'Number',
+  number: '420',
+}
+```
+
+#### Discriminating unions
+
+Union types with a unique key can be discriminated using that key:
+
+```ts twoslash
+interface ThingA {
+  kind: 'A'
+}
+interface ThingB {
+  kind: 'B'
+}
+interface ThingC {
+  kind: 'C'
+}
+
+type Things = ThingA | ThingB | ThingC
+
+declare const thing: Things
+
+switch (thing.kind) {
+  //          ^?
+  case 'A':
+    thing
+    // ^?
+    break
+  case 'B':
+    thing
+    // ^?
+    break
+  case 'C':
+    thing
+    // ^?
+    break
+  default:
+    thing
+  // ^?
+}
+
+if (thing.kind === 'A') {
+  thing
+  // ^?
+} else if (thing.kind === 'B') {
+  thing
+  // ^?
+} else if (thing.kind === 'C') {
+  thing
+  // ^?
+} else {
+  thing
+  // ^?
+}
+```
+
+### Generic types
+
+```ts twoslash
+type NumberToString<Number extends number> = `${Number}`
+
+type FourTwentySixtyNine = NumberToString<42069>
+//   ^?
+```
+
+### Generic functions
+
+#### Type assertions
+
+```ts twoslash
+function assertString(x: unknown): asserts x is string {
+  if (typeof x !== 'string') {
+    throw Error(`expected 'string' but received type '${typeof x}'`)
+  }
+}
+
+const thing: unknown = {}
+//    ^?
+
+assertString(thing) // if `thing` is not `string`, throws an error
+
+thing
+// ^?
+```
+
+#### Type predicates
+
+```ts twoslash
+const isString = (x: unknown): x is string => typeof x === 'string'
+const isNumber = (x: unknown): x is number => typeof x === 'number'
+const isBoolean = (x: unknown): x is boolean => typeof x === 'boolean'
+
+const thing: unknown = {}
+//    ^?
+
+if (isString(thing)) {
+  thing
+  // ^?
+} else if (isNumber(thing)) {
+  thing
+  // ^?
+} else if (isBoolean(thing)) {
+  thing
+  // ^?
+} else {
+  thing
+  // ^?
+}
+```
+
+### Creating type utilities
+
+#### Creating types that map from type `A` to type `B`
+
+Let's say we have `enum` types `Words` and `Numbers`:
+
+```twoslash include words-numbers
+enum Words {
+  One = 'one',
+  Two = 'two',
+  Three = 'three',
+}
+
+enum Numbers {
+  One = 1,
+  Two = 2,
+  Three = 3,
+}
+```
+
+```ts twoslash
+// @include: words-numbers
+```
+
+We'd like to create a mapping type `WordToNumber` that maps from `Word` keys to
+`Number` values. Something like this:
+
+```ts twoslash
+// @include: words-numbers
+type WordToNumber = {
+  [Words.One]: Numbers.One
+}
+// ---cut---
+
+type OneWordAsNumber = WordToNumber[Words.One]
+//   ^?
+```
+
+```ts twoslash
+// @errors: 2339
+// @include: words-numbers
+// ---cut---
+
+// we could create an object type...
+type WordToNumber = {
+  [Words.One]: Numbers.One
+  [Words.Two]: Numbers.Two
+}
+
+// but we can't enforce that each `Words` is a valid key
+type OneWordAsNumber = WordToNumber[Words.One]
+type TwoWordAsNumber = WordToNumber[Words.Two]
+type ThreeWordAsNumber = WordToNumber[Words.Three]
+```
+
+In order to enforce the rule that `WordToNumber` uses each `Words` as a key and
+that the values are all `Numbers`, we'll have to call in a _helper type_!
+
+This type (we'll call it `_WordToNumber`) accepts an object type parameter and
+enforces the rules on it while also returning it! We then use that type to
+create `WordToNumber`!
+
+```ts twoslash
+// @errors: 2344
+// @include: words-numbers
+// ---cut---
+
+// the `extends` on `Map` is what enforces the rules
+type _WordToNumber<Map extends {[Word in Words]: Numbers}> = Map
+
+// now we get a type error if we miss a key!
+type WordToNumber1 = _WordToNumber<{
+  [Words.One]: Numbers.One
+  [Words.Two]: Numbers.Two
+}>
+
+// or if the value is the wrong type!
+type WordToNumber2 = _WordToNumber<{
+  [Words.One]: Numbers.One
+  [Words.Two]: Numbers.Two
+  [Words.Three]: Words.Three
+}>
+```
+
+Here's a more complex example with two-way mapping:
+
+```ts twoslash
+// @errors: 2344
+
+enum WeaponType {
+  Sword = 'sword',
+  Mace = 'mace',
+  Bow = 'bow',
+}
+
+enum DamageType {
+  Slashing = 'slashing',
+  Crushing = 'crushing',
+  Piercing = 'piercing',
+}
+
+// helper type used to create `WeaponTypeToDamageType`. enforces that shape of
+// the provided `Map` is `{[Type in WeaponType]: DamageType}` and returns `Map`
+type _WeaponTypeToDamageType<Map extends {[Type in WeaponType]: DamageType}> =
+  Map
+
+/**
+ * Maps the provided `WeaponType` to the corresponding `DamageType`.
+ */
+type WeaponTypeToDamageType = _WeaponTypeToDamageType<{
+  [WeaponType.Sword]: DamageType.Slashing
+  [WeaponType.Mace]: DamageType.Crushing
+  [WeaponType.Bow]: DamageType.Piercing
+}>
+
+// helper type used to create `DamageTypeToWeaponTypes`. enforces that each
+// `DamageType` is used as a key and that the value is a `WeaponType`
+type _DamageTypeToWeaponTypes<Map extends {[Type in DamageType]: WeaponType}> =
+  Map
+
+/**
+ * Maps the provided `DamageType` to its corresponding `WeaponType`s
+ */
+type DamageTypeToWeaponTypes = _DamageTypeToWeaponTypes<{
+  [DamageType.Slashing]: WeaponType.Sword
+  [DamageType.Crushing]: WeaponType.Mace
+  [DamageType.Piercing]: WeaponType.Bow
+}>
+
+// `WeaponType` -> `DamageType`
+type SwordDamageType = WeaponTypeToDamageType[WeaponType.Sword]
+//   ^?
+type MaceDamageType = WeaponTypeToDamageType[WeaponType.Mace]
+//   ^?
+type BowDamageType = WeaponTypeToDamageType[WeaponType.Bow]
+//   ^?
+
+// `DamageType` -> `WeaponType`
+type SlashingDamageWeapon = DamageTypeToWeaponTypes[DamageType.Slashing]
+//   ^?
+type CrushingDamageWeapon = DamageTypeToWeaponTypes[DamageType.Crushing]
+//   ^?
+type PiercingDamageWeapons = DamageTypeToWeaponTypes[DamageType.Piercing]
+//   ^?
+```
+
+#### Create a string type using template literals
+
+```ts twoslash
+// @errors: 2344
+
+/** The number of sides a die has */
+type DiceSides = 4 | 6 | 8 | 10 | 12 | 20
+
+/**
+ * Represents a dice roll for damage.
+ */
+interface DiceRoll {
+  /** The number of dice to roll */
+  count: number
+  /** The number of sides on the dice */
+  sides: DiceSides
+}
+
+/**
+ * A string representation of a `DiceRoll` (`DiceString<2, 4>`-> `2d4`).
+ */
+type DiceString<
+  Count extends number,
+  Sides extends DiceSides,
+> = `${Count}d${Sides}`
+
+type TwoDFour = DiceString<2, 4>
+//   ^?
+
+type WrongSidesNumber = DiceString<2, 420>
+
+/**
+ * Convert a dice string (`2d4`) into a `DiceRoll` object.
+ */
+type DiceStringToDiceRoll<String extends string> =
+  String extends `${infer Count extends number}d${infer Sides extends DiceSides}`
+    ? {count: Count; sides: Sides}
+    : never
+
+type TwoDFourRoll = DiceStringToDiceRoll<'2d4'>
+//   ^?
+
+type WrongSides = DiceStringToDiceRoll<'2d420'>
+//   ^?
+```
