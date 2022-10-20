@@ -5,10 +5,15 @@ import {components} from '../components'
 import {Layout} from '../layout'
 import '../styles/global.scss'
 
-function MyApp({Component, pageProps}: AppProps) {
+function MyApp({
+  Component,
+  pageProps,
+}: AppProps<{title: string; description: string}>) {
+  const title = pageProps.title ? `${pageProps.title} | 🌱❤️‍🔥` : '🌱❤️‍🔥'
   return (
     <>
       <Head>
+        <title>{title}</title>
         <link
           rel="apple-touch-icon"
           sizes="180x180"
@@ -28,6 +33,7 @@ function MyApp({Component, pageProps}: AppProps) {
         />
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content={pageProps.description} />
       </Head>
       <Layout>
         <MDXProvider components={components}>

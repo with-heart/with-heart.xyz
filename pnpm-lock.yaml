@@ -31,6 +31,7 @@ importers:
       next: 12.3.1
       react: 18.2.0
       react-dom: 18.2.0
+      recma-nextjs-static-props: ^1.0.0
       rehype-autolink-headings: ^6.1.1
       rehype-raw: ^6.1.1
       rehype-slug: ^5.0.1
@@ -57,6 +58,7 @@ importers:
       eslint: 8.25.0
       eslint-config-next: 12.3.1_z4bbprzjrhnsfa24uvmcbu7f5q
       modern-normalize: 1.1.0
+      recma-nextjs-static-props: 1.0.0
       rehype-autolink-headings: 6.1.1
       rehype-raw: 6.1.1
       rehype-slug: 5.0.1
@@ -4595,6 +4597,15 @@ packages:
     engines: {node: '>=8.10.0'}
     dependencies:
       picomatch: 2.3.1
+
+  /recma-nextjs-static-props/1.0.0:
+    resolution: {integrity: sha512-szo+rOZFU6mR0YWZi3e3dSqcEQU+E0f7GIyfMfntHeJccH1s9ODP0HWUeK7No0lcY1smRCcC43JrpoekzuX4Aw==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      '@types/estree': 1.0.0
+      periscopic: 3.0.4
+      unified: 10.1.2
+    dev: true
 
   /redent/3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}

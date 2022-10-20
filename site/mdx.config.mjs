@@ -1,5 +1,6 @@
 import {nodeTypes} from '@mdx-js/mdx'
 import withMdx from '@next/mdx'
+import recmaNextjsStaticProps from 'recma-nextjs-static-props'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
@@ -39,6 +40,7 @@ export default withMdx({
       [rehypeSlug],
       [rehypeAutolinkHeadings, rehypeAutolinkHeadingsOptions],
     ],
+    recmaPlugins: [[recmaNextjsStaticProps]],
     providerImportSource: '@mdx-js/react',
   },
 })
