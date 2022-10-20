@@ -106,6 +106,15 @@ h4 {
   code {
     font-weight: inherit;
   }
+
+  a {
+    font-weight: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 h1 {

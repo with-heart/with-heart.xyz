@@ -7,9 +7,10 @@ import styles from './layout.module.scss'
 export const Layout = ({children}: {children: ReactNode}) => {
   const {route} = useRouter()
   const isIndex = route === '/'
+  const className = `${styles.layout}${isIndex ? ' index' : ''}`
 
   return (
-    <div className={styles.layout}>
+    <div className={className}>
       {isIndex ? null : (
         <header>
           <Link href="/">
