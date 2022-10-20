@@ -22,7 +22,11 @@ export const Layout = ({children}: {children: ReactNode}) => {
       )}
       <>{children}</>
       <footer>
-        <GrowLove randomize />
+        <Link href="/">
+          <div className="pointer" title="GrowLove">
+            <GrowLove randomize />
+          </div>
+        </Link>
       </footer>
     </div>
   )
