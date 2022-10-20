@@ -30,13 +30,28 @@
   --space6: 3rem;
   --space7: 3.5rem;
   --space8: 4rem;
+
+  // breakpoints
+  --bp1: 30em;
+  --bp3: 60em;
 }
+
+$bp1: 360px;
+$bp2: 768px;
+$bp3: 1280px;
 
 html {
   line-height: 1.77778;
-  font-size: var(--font-md);
-  overscroll-behavior-x: contain;
+  font-size: var(--font-sm);
   --box-sizing: border-box;
+
+  @media (min-width: $bp2) {
+    font-size: var(--font-md);
+  }
+
+  @media (min-width: $bp3) {
+    font-size: var(--font-lg);
+  }
 }
 
 body {
@@ -130,6 +145,10 @@ hr {
   margin-block: var(--space6);
 }
 
+img {
+  margin-block-end: var(--space2);
+}
+
 li {
   margin-block-end: var(--space1);
   padding-inline-start: var(--space1);
@@ -194,19 +213,31 @@ pre:has(+ .join-code) {
 
 pre {
   width: min-content;
+  max-width: 100vw;
   border-width: 1px;
   border-color: var(--slate8);
-  padding: var(--space2) var(--space4);
-  font-size: 0.9em;
+  padding: var(--space1);
+
+  @media (min-width: $bp2) {
+    padding: var(--space2) var(--space4);
+  }
 
   code {
-    font-size: 1em;
+    font-size: 0.6em;
     font-weight: 400;
     background-color: unset;
 
     &::before,
     &::after {
       content: unset;
+    }
+
+    @media (min-width: $bp2) {
+      font-size: 0.8em;
+    }
+
+    @media (min-width: $bp3) {
+      font-size: 1em;
     }
   }
 

@@ -41,13 +41,17 @@ used here.
     grid-column: full;
   }
 
+  &:not(:has(> header)) {
+    padding-block-start: var(--space5);
+  }
+
   header {
     grid-column: feature;
     justify-self: center;
   }
 
   blockquote {
-    grid-column: feature;
+    grid-column: popout;
   }
 
   pre {
