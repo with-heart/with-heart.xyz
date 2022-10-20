@@ -102,11 +102,15 @@ h3,
 h4 {
   line-height: 1.3;
   font-weight: 600;
+
+  code {
+    font-weight: inherit;
+  }
 }
 
 h1 {
   font-size: var(--font-xl);
-  font-weight: 800;
+  font-weight: 900;
   margin-block-end: var(--space5);
 
   &:has(+ .subtitle) {
@@ -116,18 +120,18 @@ h1 {
 
 h2 {
   font-size: var(--font-lg);
-  font-weight: 700;
+  font-weight: 800;
   margin-block-end: var(--space4);
+}
+
+h3 {
+  font-weight: 700;
 }
 
 h3,
 h4 {
   line-height: 1.5;
   margin-block-end: var(--space3);
-}
-
-h4 {
-  font-weight: 500;
 }
 
 header {
@@ -209,6 +213,10 @@ pre:has(+ .join-code) {
   margin-block-end: 0;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 /* shiki style overrides */
 
 pre {
@@ -287,6 +295,42 @@ pre {
       &::after {
         content: unset;
       }
+    }
+  }
+}
+
+/* growlove */
+
+.growlove {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: bottom;
+
+  .love {
+    margin-left: -0.2em;
+  }
+}
+
+.love,
+.grow {
+  width: 72px;
+  height: 72px;
+
+  @media (min-width: $bp2) {
+    width: 82px;
+    height: 82px;
+  }
+
+  @media (min-width: $bp3) {
+    width: 92px;
+    height: 92px;
+  }
+}
+
+h1 {
+  .growlove {
+    .love {
+      margin-left: -0.5em;
     }
   }
 }

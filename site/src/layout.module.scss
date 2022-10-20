@@ -23,6 +23,7 @@ used here.
     var(--popout) [popout-end]
     var(--feature) [feature-end]
     var(--full) [full-end];
+  padding-block: var(--space4);
 
   // default any child to `content`
   :where(& > *) {
@@ -45,7 +46,8 @@ used here.
     padding-block-start: var(--space5);
   }
 
-  header {
+  header,
+  footer {
     grid-column: feature;
     justify-self: center;
   }
