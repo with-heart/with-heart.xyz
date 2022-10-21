@@ -152,10 +152,11 @@ header {
 }
 
 hr {
-  border-color: var(--slate8);
+  border-color: var(--slate7);
   border-top-width: 1px;
-  width: 50%;
+  width: 100%;
   margin-block: var(--space6);
+  grid-column: feature;
 }
 
 img {
@@ -183,6 +184,32 @@ ul {
 p {
   &:has(+ :is(ul, ol)) {
     margin-block-end: var(--space3);
+  }
+}
+
+details {
+  summary {
+    list-style: none;
+
+    &::marker {
+      display: none;
+    }
+
+    &::before {
+      content: '▶';
+      font-size: var(--font-sm);
+      margin-left: -1em;
+    }
+
+    h2 {
+      display: inline-block;
+    }
+  }
+
+  &[open] summary {
+    &::before {
+      content: '▼';
+    }
   }
 }
 
@@ -218,12 +245,45 @@ p {
 .join-code {
   justify-self: center;
 }
-pre:has(+ .join-code) {
+pre:has(+ .join-code),
+:has(+ footer) {
   margin-block-end: 0;
+}
+
+h2#table-of-contents + ul {
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  li {
+    & > ul {
+      margin-block-start: var(--space1);
+    }
+  }
+
+  ul {
+    margin-block-end: var(--space0);
+
+    li {
+      margin-block-end: var(--space1);
+    }
+  }
+}
+
+.flex {
+  display: flex;
 }
 
 .pointer {
   cursor: pointer;
+}
+
+.mb-4 {
+  margin-block-end: var(--space4);
 }
 
 /* shiki style overrides */
