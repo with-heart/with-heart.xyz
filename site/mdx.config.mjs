@@ -7,6 +7,7 @@ import rehypeSlug from 'rehype-slug'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import remarkShikiTwoslash from 'remark-shiki-twoslash'
+import remarkToc from 'remark-toc'
 
 /** @type {import('remark-shiki-twoslash').Options} */
 const remarkShikiTwoslashOptions = {
@@ -23,8 +24,16 @@ const rehypeAutolinkHeadingsOptions = {
   test: (node) => {
     const isGrowLove =
       node.tagName === 'h1' && node.properties?.id === '-growlove'
-    return !isGrowLove
+    const isTableOfContents =
+      node.tagName === 'h2' && node.properties?.id === 'table-of-contents'
+    return !isGrowLove && !isTableOfContents
   },
+}
+
+/** @type {import('remark-toc').Options} */
+const remarkTocOptions = {
+  maxDepth: 3,
+  tight: true,
 }
 
 export default withMdx({
@@ -34,6 +43,7 @@ export default withMdx({
       [remarkShikiTwoslash.default, remarkShikiTwoslashOptions],
       [remarkFrontmatter],
       [remarkMdxFrontmatter],
+      [remarkToc, remarkTocOptions],
     ],
     rehypePlugins: [
       [rehypeRaw, {passThrough: nodeTypes}],

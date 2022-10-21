@@ -42,7 +42,8 @@ used here.
     grid-column: full;
   }
 
-  &:not(:has(> header)) {
+  &:not(:has(> header)),
+  footer {
     padding-block-start: var(--space5);
   }
 
