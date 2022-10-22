@@ -7,7 +7,7 @@ export type LoveType = typeof hearts[number]
 export type GrowProps = {plant?: GrowType}
 export type LoveProps = {heart?: LoveType}
 
-export const plants = [
+const plants = [
   'blossom',
   'cactus',
   'cherry-blossom',
