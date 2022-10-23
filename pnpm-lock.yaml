@@ -14,6 +14,9 @@ importers:
       '@babel/preset-typescript': 7.18.6_@babel+core@7.19.3
       '@preconstruct/cli': 2.2.2
 
+  packages/openmoji:
+    specifiers: {}
+
   site:
     specifiers:
       '@mdx-js/loader': ^2.1.5

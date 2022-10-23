@@ -9,6 +9,14 @@ const nextConfig = {
     locales: ['en'],
     defaultLocale: 'en',
   },
+  webpack: (config, options) => {
+    config.experiments = {
+      topLevelAwait: true,
+      layers: true,
+    }
+
+    return config
+  },
 }
 
 export default withMdx(nextConfig)

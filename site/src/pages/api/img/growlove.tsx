@@ -1,53 +1,10 @@
 import {ImageResponse} from '@vercel/og'
 import {ReactNode} from 'react'
+import {randomEmojis} from '../../../lib/emoji'
+import {fonts} from '../../../lib/fonts'
 
 export const config = {
   runtime: 'experimental-edge',
-}
-
-const emoji = {
-  plants: [
-    '🌼',
-    '🌵',
-    '🌸',
-    '🌳',
-    '🌲',
-    '🍀',
-    '🌿',
-    '🌺',
-    '🍃',
-    '🌴',
-    '🌹',
-    '🌱',
-    '🌻',
-    '🌷',
-  ] as const,
-  hearts: [
-    '💓',
-    '💙',
-    '💚',
-    '💗',
-    // '❤️‍🔥',
-    '💘',
-    '💝',
-    '💜',
-    '❤️',
-    '💞',
-    '💖',
-    '💕',
-    '🤍',
-    '💛',
-  ] as const,
-}
-
-const all = [...emoji.hearts, ...emoji.plants]
-
-const randomFrom = (list: readonly string[]): string => {
-  return list[Math.floor(Math.random() * list.length)]
-}
-
-const generate = (list: readonly string[], length: number): string[] => {
-  return Array.from({length}, () => randomFrom(list))
 }
 
 const Container = ({children}: {children: ReactNode}) => {
@@ -73,7 +30,8 @@ const Text = ({children}: {children: ReactNode}) => {
     <div
       style={{
         fontSize: 164,
-        padding: '30px 50px 0 50px',
+        fontWeight: 900,
+        padding: '30px 52px 0 52px',
         marginTop: '10px',
         lineHeight: 0.9,
         background: 'white',
@@ -85,7 +43,7 @@ const Text = ({children}: {children: ReactNode}) => {
 }
 
 const EmojiGrid = ({width, height}: {width: number; height: number}) => {
-  const emoji = generate(all, 138)
+  const emoji = randomEmojis(138)
 
   return (
     <div
@@ -97,6 +55,7 @@ const EmojiGrid = ({width, height}: {width: number; height: number}) => {
         left: 0,
         width,
         height,
+        fontSize: 70,
       }}
     >
       {emoji.map((e, i) => (
@@ -106,12 +65,8 @@ const EmojiGrid = ({width, height}: {width: number; height: number}) => {
   )
 }
 
-const font = fetch(
-  new URL('../../../../assets/SF-Pro-Display-Black.otf', import.meta.url),
-).then((res) => res.arrayBuffer())
-
 export default async function GrowLoveImage() {
-  const fontData = await font
+  const fontsData = await fonts()
   const width = 1200
   const height = 675
 
@@ -126,13 +81,7 @@ export default async function GrowLoveImage() {
       width,
       height,
       emoji: 'openmoji',
-      fonts: [
-        {
-          name: 'SF',
-          data: fontData,
-          style: 'normal',
-        },
-      ],
+      fonts: fontsData,
     },
   )
 }
