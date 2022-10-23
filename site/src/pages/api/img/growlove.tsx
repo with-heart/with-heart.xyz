@@ -11,6 +11,7 @@ const Container = ({children}: {children: ReactNode}) => {
   return (
     <div
       style={{
+        fontFamily: 'Inter',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -31,10 +32,8 @@ const Text = ({children}: {children: ReactNode}) => {
       style={{
         fontSize: 164,
         fontWeight: 900,
-        padding: '30px 52px 0 52px',
-        marginTop: '10px',
-        lineHeight: 0.9,
         background: 'white',
+        padding: '0 43px',
       }}
     >
       {children}
@@ -43,7 +42,7 @@ const Text = ({children}: {children: ReactNode}) => {
 }
 
 const EmojiGrid = ({width, height}: {width: number; height: number}) => {
-  const emoji = randomEmojis(138)
+  const emoji = randomEmojis(136)
 
   return (
     <div
@@ -51,6 +50,8 @@ const EmojiGrid = ({width, height}: {width: number; height: number}) => {
         display: 'flex',
         flexWrap: 'wrap',
         position: 'absolute',
+        justifyContent: 'space-around',
+        alignContent: 'space-around',
         top: 0,
         left: 0,
         width,

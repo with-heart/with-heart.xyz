@@ -1,20 +1,20 @@
 export const fonts = async () => {
   const title = await fetch(
-    new URL('../../assets/SF-Pro-Display-Black.otf', import.meta.url),
+    new URL('../../assets/Inter-Black.ttf', import.meta.url),
   ).then((res) => res.arrayBuffer())
   const body = await fetch(
-    new URL('../../assets/SF-Pro-Display-Regular.otf', import.meta.url),
+    new URL('../../assets/Inter-Medium.ttf', import.meta.url),
   ).then((res) => res.arrayBuffer())
 
   return [
     {
-      name: 'SF',
+      name: 'Inter',
       data: title,
       style: 'normal',
       weight: 900,
     } as const,
     {
-      name: 'SF',
+      name: 'Inter',
       data: body,
       style: 'normal',
       weight: 400,
