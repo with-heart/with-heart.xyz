@@ -1,9 +1,19 @@
-import {gray} from '@radix-ui/colors'
+import {slate} from '@radix-ui/colors'
 import {ImageResponse} from '@vercel/og'
 import {NextRequest} from 'next/server'
 import {ReactNode} from 'react'
 import {randomEmojis} from '../../../lib/emoji'
 import {fonts} from '../../../lib/fonts'
+
+interface TextBlock {
+  type: 'text' | 'code'
+  words: string[]
+}
+
+type Index = [start: number, end: number]
+
+type RegExpMatch = RegExpExecArray & {indices: Index[]}
+type RegExpMatches = RegExpMatch[]
 
 export const config = {
   runtime: 'experimental-edge',
@@ -101,6 +111,7 @@ const Content = ({children}: {children: ReactNode}) => {
         alignItems: 'center',
         flexDirection: 'column',
         maxWidth: '75vw',
+        lineHeight: 1.5,
       }}
     >
       {children}
@@ -110,21 +121,121 @@ const Content = ({children}: {children: ReactNode}) => {
 
 const Title = ({children}: {children: ReactNode}) => {
   return (
-    <div style={{fontSize: 80, fontWeight: 900, marginBottom: '1rem'}}>
+    <div
+      style={{
+        display: 'flex',
+        fontSize: 80,
+        fontWeight: 900,
+        marginBottom: '1.5rem',
+        lineHeight: 1.3,
+      }}
+    >
       {children}
     </div>
   )
+}
+
+const codeRegex = /`(.*?)`/dgm
+
+const processText = (string: string): TextBlock[] => {
+  let match
+  const matches: RegExpMatches = []
+
+  do {
+    match = codeRegex.exec(string)
+    if (match) {
+      matches.push(match as RegExpMatch)
+    }
+  } while (match)
+
+  if (matches.length === 0) {
+    return [
+      {
+        type: 'text',
+        words: string.split(' '),
+      },
+    ]
+  }
+
+  const blocks: TextBlock[] = []
+  const codeIndices = matches.map((match) => match.indices[0])
+
+  codeIndices.forEach((codeIndex, i) => {
+    const prevCodeIndex = codeIndices[i - 1] ?? [0, 0]
+    const isLastCodeIndex = i === codeIndices.length - 1
+
+    // create a text block from the end of the previous code index to the start
+    // of the code index
+    createBlock('text', string.substring(prevCodeIndex[1], codeIndex[0] - 1))
+
+    // create a code block from the current code index
+    createBlock('code', string.substring(codeIndex[0], codeIndex[1]))
+
+    // this is the last code block, so create a text index from the end of the
+    // code block to the end of `string`
+    if (isLastCodeIndex) {
+      if (codeIndex[1] >= string.length - 1) return
+
+      createBlock('text', string.substring(codeIndex[1] + 1, string.length - 1))
+    }
+  })
+
+  return blocks
+
+  function createBlock(type: TextBlock['type'], string: string) {
+    if (!(string.trim().length > 0)) return
+
+    blocks.push({
+      type,
+      words: string
+        .trim()
+        .split(' ')
+        .filter((w) => w.length > 0),
+    })
+  }
 }
 
 const Text = ({children}: {children: ReactNode}) => {
   return (
     <div
       style={{
+        display: 'flex',
+        alignContent: 'baseline',
+        justifyContent: 'flex-start',
+        flexWrap: 'wrap',
         fontSize: 40,
+        maxWidth: '80vw',
       }}
     >
       {children}
     </div>
+  )
+}
+
+const Block = ({block}: {block: TextBlock}) => {
+  if (block.type === 'code') {
+    return (
+      <span
+        style={{
+          fontFamily: 'Source Code Pro',
+          marginRight: '0.2em',
+        }}
+      >
+        {block.words.map((word, i) => (
+          <span key={`${i}.${word}`}>{word}</span>
+        ))}
+      </span>
+    )
+  }
+
+  return (
+    <span style={{marginRight: '0.2em'}}>
+      {block.words.map((word, i) => (
+        <span style={{marginRight: '0.2em'}} key={`${i}.${word}`}>
+          {word}
+        </span>
+      ))}
+    </span>
   )
 }
 
@@ -135,12 +246,15 @@ export default async function BorderedImage(req: NextRequest) {
   const height = 675
 
   const {searchParams} = new URL(req.url)
-  const hasTitle = searchParams.has('title')
-  const title = hasTitle ? searchParams.get('title') : 'Hello World'
-  const hasDescription = searchParams.has('description')
-  const description = hasDescription
-    ? searchParams.get('description')
-    : 'Pondering an age-old phrase that greets the whole planet for some reason.'
+  const title = searchParams.get('title') ?? 'Hello `World`'
+  const description =
+    searchParams.get('description') ??
+    'Using `mdx` and `shiki-twoslash` to build some really, really, really cool shit like `with-heart.xyz`'
+
+  const titleBlocks = processText(title)
+  const descriptionBlocks = processText(description)
+
+  // console.log('description', JSON.stringify(description), descriptionBlocks)
 
   return new ImageResponse(
     (
@@ -153,20 +267,28 @@ export default async function BorderedImage(req: NextRequest) {
           height: '100%',
           fontSize: 70,
           fontFamily: 'SF',
-          color: gray.gray12,
-          backgroundColor: gray.gray1,
+          color: slate.slate12,
+          backgroundColor: slate.slate1,
         }}
       >
         <Borders width={width} height={height} size={70} />
         <Content>
-          <Title>{title}</Title>
-          <Text>{description}</Text>
+          <Title>
+            {titleBlocks.map((block, i) => (
+              <Block key={`${i}.${block.words.join('+')}`} block={block} />
+            ))}
+          </Title>
+          <Text>
+            {descriptionBlocks.map((block, i) => (
+              <Block key={`${i}.${block.words.join('+')}`} block={block} />
+            ))}
+          </Text>
         </Content>
         <div
           style={{
             position: 'absolute',
             bottom: 88,
-            color: gray.gray11,
+            color: slate.slate11,
             left: '50%',
             fontSize: 36,
             letterSpacing: '2px',
