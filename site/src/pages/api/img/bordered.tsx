@@ -5,16 +5,6 @@ import {ReactNode} from 'react'
 import {randomEmojis} from '../../../lib/emoji'
 import {fonts} from '../../../lib/fonts'
 
-interface TextBlock {
-  type: 'text' | 'code'
-  words: string[]
-}
-
-type Index = [start: number, end: number]
-
-type RegExpMatch = RegExpExecArray & {indices: Index[]}
-type RegExpMatches = RegExpMatch[]
-
 export const config = {
   runtime: 'experimental-edge',
 }
@@ -135,66 +125,6 @@ const Title = ({children}: {children: ReactNode}) => {
   )
 }
 
-const codeRegex = /`(.*?)`/dgm
-
-const processText = (string: string): TextBlock[] => {
-  let match
-  const matches: RegExpMatches = []
-
-  do {
-    match = codeRegex.exec(string)
-    if (match) {
-      matches.push(match as RegExpMatch)
-    }
-  } while (match)
-
-  if (matches.length === 0) {
-    return [
-      {
-        type: 'text',
-        words: string.split(' '),
-      },
-    ]
-  }
-
-  const blocks: TextBlock[] = []
-  const codeIndices = matches.map((match) => match.indices[0])
-
-  codeIndices.forEach((codeIndex, i) => {
-    const prevCodeIndex = codeIndices[i - 1] ?? [0, 0]
-    const isLastCodeIndex = i === codeIndices.length - 1
-
-    // create a text block from the end of the previous code index to the start
-    // of the code index
-    createBlock('text', string.substring(prevCodeIndex[1], codeIndex[0] - 1))
-
-    // create a code block from the current code index
-    createBlock('code', string.substring(codeIndex[0], codeIndex[1]))
-
-    // this is the last code block, so create a text index from the end of the
-    // code block to the end of `string`
-    if (isLastCodeIndex) {
-      if (codeIndex[1] >= string.length - 1) return
-
-      createBlock('text', string.substring(codeIndex[1] + 1, string.length - 1))
-    }
-  })
-
-  return blocks
-
-  function createBlock(type: TextBlock['type'], string: string) {
-    if (!(string.trim().length > 0)) return
-
-    blocks.push({
-      type,
-      words: string
-        .trim()
-        .split(' ')
-        .filter((w) => w.length > 0),
-    })
-  }
-}
-
 const Text = ({children}: {children: ReactNode}) => {
   return (
     <div
@@ -212,33 +142,6 @@ const Text = ({children}: {children: ReactNode}) => {
   )
 }
 
-const Block = ({block}: {block: TextBlock}) => {
-  if (block.type === 'code') {
-    return (
-      <span
-        style={{
-          fontFamily: 'Source Code Pro',
-          marginRight: '0.2em',
-        }}
-      >
-        {block.words.map((word, i) => (
-          <span key={`${i}.${word}`}>{word}</span>
-        ))}
-      </span>
-    )
-  }
-
-  return (
-    <span style={{marginRight: '0.2em'}}>
-      {block.words.map((word, i) => (
-        <span style={{marginRight: '0.2em'}} key={`${i}.${word}`}>
-          {word}
-        </span>
-      ))}
-    </span>
-  )
-}
-
 export default async function BorderedImage(req: NextRequest) {
   const fontsData = await fonts()
 
@@ -246,15 +149,10 @@ export default async function BorderedImage(req: NextRequest) {
   const height = 675
 
   const {searchParams} = new URL(req.url)
-  const title = searchParams.get('title') ?? 'Hello `World`'
+  const title = searchParams.get('title') ?? 'Hello World'
   const description =
     searchParams.get('description') ??
-    'Using `mdx` and `shiki-twoslash` to build some really, really, really cool shit like `with-heart.xyz`'
-
-  const titleBlocks = processText(title)
-  const descriptionBlocks = processText(description)
-
-  // console.log('description', JSON.stringify(description), descriptionBlocks)
+    'Examining an age-old phrase used to greet the world for some reason'
 
   return new ImageResponse(
     (
@@ -273,16 +171,8 @@ export default async function BorderedImage(req: NextRequest) {
       >
         <Borders width={width} height={height} size={70} />
         <Content>
-          <Title>
-            {titleBlocks.map((block, i) => (
-              <Block key={`${i}.${block.words.join('+')}`} block={block} />
-            ))}
-          </Title>
-          <Text>
-            {descriptionBlocks.map((block, i) => (
-              <Block key={`${i}.${block.words.join('+')}`} block={block} />
-            ))}
-          </Text>
+          <Title>{title}</Title>
+          <Text>{description}</Text>
         </Content>
         <div
           style={{
