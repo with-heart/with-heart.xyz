@@ -52,7 +52,7 @@ export default withMdx({
       [rehypeRaw, {passThrough: nodeTypes}],
       [rehypeSlug],
       [rehypeAutolinkHeadings, rehypeAutolinkHeadingsOptions],
-      [rehypeImgSize],
+      [rehypeImgSize, {dir: 'public'}],
     ],
     recmaPlugins: [[recmaNextjsStaticProps]],
     providerImportSource: '@mdx-js/react',
