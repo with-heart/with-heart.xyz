@@ -9,6 +9,9 @@ const nextConfig = {
     locales: ['en'],
     defaultLocale: 'en',
   },
+  images: {
+    domains: ['with-heart.xyz'],
+  },
   webpack: (config, options) => {
     config.experiments = {
       topLevelAwait: true,
