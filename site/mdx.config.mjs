@@ -2,12 +2,14 @@ import {nodeTypes} from '@mdx-js/mdx'
 import withMdx from '@next/mdx'
 import recmaNextjsStaticProps from 'recma-nextjs-static-props'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeImgSize from 'rehype-img-size'
 import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import remarkShikiTwoslash from 'remark-shiki-twoslash'
 import remarkToc from 'remark-toc'
+import remarkUnwrapImages from 'remark-unwrap-images'
 
 /** @type {import('remark-shiki-twoslash').Options} */
 const remarkShikiTwoslashOptions = {
@@ -44,11 +46,13 @@ export default withMdx({
       [remarkFrontmatter],
       [remarkMdxFrontmatter],
       [remarkToc, remarkTocOptions],
+      [remarkUnwrapImages],
     ],
     rehypePlugins: [
       [rehypeRaw, {passThrough: nodeTypes}],
       [rehypeSlug],
       [rehypeAutolinkHeadings, rehypeAutolinkHeadingsOptions],
+      [rehypeImgSize],
     ],
     recmaPlugins: [[recmaNextjsStaticProps]],
     providerImportSource: '@mdx-js/react',
