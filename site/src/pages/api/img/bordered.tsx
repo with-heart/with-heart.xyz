@@ -109,15 +109,27 @@ const Content = ({children}: {children: ReactNode}) => {
   )
 }
 
-const Title = ({children}: {children: ReactNode}) => {
+const Title = ({children}: {children: string}) => {
+  const fontSize =
+    children.length <= 20
+      ? 80
+      : children.length <= 30
+      ? 60
+      : children.length <= 45
+      ? 40
+      : children.length <= 100
+      ? 40
+      : 30
+
   return (
     <div
       style={{
         display: 'flex',
-        fontSize: 80,
+        fontSize,
         fontWeight: 900,
         marginBottom: '1.5rem',
-        lineHeight: 1.3,
+        lineHeight: 1.2,
+        textAlign: 'center',
       }}
     >
       {children}
