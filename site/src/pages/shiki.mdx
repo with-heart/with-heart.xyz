@@ -128,6 +128,24 @@ const string = 'hello world'
 //        ^|
 ```
 
+### Displaying a code block title
+
+Code blocks can display a title using the `title` code fence meta attribute:
+
+````
+```ts twoslash title="title.ts"
+const hello = 'world'
+```
+````
+
+<JoinCode />
+
+```ts twoslash title="title.ts"
+const hello = 'world'
+```
+
+The title can be styled using the `.code-title` class.
+
 ### Highlighting code
 
 `shiki-twoslash` can highlight specific lines of code by attaching line numbers
