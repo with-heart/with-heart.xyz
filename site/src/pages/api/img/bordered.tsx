@@ -39,7 +39,7 @@ const Column = ({emoji, side}: {emoji: string[]; side: 'left' | 'right'}) => {
         display: 'flex',
         flexDirection: 'column',
         position: 'absolute',
-        justifyContent: 'space-around',
+        justifyContent: 'space-between',
         height: '100%',
         padding: '70px 0',
         top: 0,
@@ -156,11 +156,30 @@ const Text = ({children}: {children: string}) => {
   )
 }
 
+const Url = ({children}: {children: ReactNode}) => {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: 88,
+        color: slate.slate11,
+        left: '50%',
+        fontSize: 28,
+        letterSpacing: '2px',
+        textTransform: 'uppercase',
+        transform: 'translateX(-50%)',
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
 export default async function BorderedImage(req: NextRequest) {
   const fontsData = await fonts()
 
   const width = 1200
-  const height = 675
+  const height = 628
 
   const {searchParams} = new URL(req.url)
   const title = searchParams.get('title') ?? ''
@@ -186,20 +205,7 @@ export default async function BorderedImage(req: NextRequest) {
           <Title>{title}</Title>
           <Text>{description}</Text>
         </Content>
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 88,
-            color: slate.slate11,
-            left: '50%',
-            fontSize: 36,
-            letterSpacing: '2px',
-            textTransform: 'uppercase',
-            transform: 'translateX(-50%)',
-          }}
-        >
-          with-heart.xyz
-        </div>
+        <Url>with-heart.xyz</Url>
       </div>
     ),
     {
