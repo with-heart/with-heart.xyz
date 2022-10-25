@@ -12,7 +12,7 @@ const nextConfig = {
     defaultLocale: 'en',
   },
   images: {
-    domains: ['with-heart.xyz', isDev && 'localhost'],
+    domains: ['with-heart.xyz', isDev && 'localhost'].filter(Boolean),
   },
   webpack: (config, options) => {
     config.experiments = {
