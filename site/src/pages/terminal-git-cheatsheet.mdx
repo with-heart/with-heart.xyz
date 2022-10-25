@@ -1,0 +1,172 @@
+---
+title: 'A solid terminal and git cheatsheet'
+description:
+  "For when you can't keep those commands in your head for the life of you"
+---
+
+# {title}
+
+<div className="subtitle">{description}</div>
+
+## Table of Contents
+
+## Terminal
+
+### `alias`
+
+Alias one thing to another thing.
+
+```sh
+> alias hello="echo hello"
+
+> hello
+hello
+```
+
+If you save this line in your `.zshrc` or `.bashrc` file, `hello` will be
+available in all new terminal sessions. To make it available in your current
+session too, see [Sourcing changes to rc files](#sourcing-changes)
+
+### `ls`
+
+List the files in the current directory.
+
+You can install [`exa`](https://github.com/ogham/exa) for a modern replacement:
+
+```sh
+brew install exa
+```
+
+I alias `ls` to `exa` so that I always use `exa`. You can do the same by adding
+the following to your `.bashrc` or `.zshrc` file:
+
+```sh
+alias ls=exa
+```
+
+You'll also need to
+[`source` the changes to the file](#using-changes-in-zshrc-or-bashrc-in-the-current-terminal)
+if you want the alias to work in your current terminal.
+
+### `cd`
+
+**c**hange **d**irectory. Changes your directory to a different one.
+
+```sh
+~
+> cd code
+
+~/code
+>
+```
+
+If you type part of a file or directory name and press <kbd>tab</kbd>, you'll
+trigger autocomplete which will attempt to find to expand your current input to
+the first matched filename.
+
+```sh
+> ls
+a_file b_file
+
+> ls a<tab>
+# hitting tab there replaces the input line with:
+> ls a_file
+```
+
+If you use `zsh`, you can use tab to complete nested partial matches:
+
+```sh
+> ls -T
+.
+└── site
+   └── src
+      └── pages
+         ├── api
+         │  └── hello.ts
+         └── index.tsx
+
+> ls s/s/p/a/h[tab]
+# hitting tab there replaces the input line with:
+> ls site/src/pages/api/hello.ts
+```
+
+### `pwd`
+
+**p**resent **w**orking **d**irectory aka "where am I?". Shows your current
+location in the file system.
+
+```sh
+~
+> pwd
+/Users/with-heart
+```
+
+### `which`
+
+Shows you what/where the target command is.
+
+```sh
+> which ls
+ls: aliased to exa
+
+> which exa
+/opt/homebrew/bin/exa
+```
+
+### `mkdir`
+
+Creates a directory in the current directory.
+
+```sh
+> mkdir new-directory
+```
+
+Kind of sucks by default because it can't create nested directories:
+
+```sh
+> mkdir some/nested/directory
+mkdir: some/nested: No such file or directory
+```
+
+However it has this nice little flag `-p` that makes it handle nested
+directories. I think that should be the default option, so I made it that way on
+my local system:
+
+```sh
+> alias mkdir="mkdir -p"
+> mkdir some/nested/directory
+```
+
+### `touch`
+
+Create an empty file.
+
+```sh
+> touch some_file
+```
+
+### `rm`
+
+Remove the target file/directory.
+
+```zsh
+# files:
+> rm some_file
+
+# directories:
+# we need `-r` flag (recursive) for directories + `-f` flag (force) to delete
+# all files/directories under the target without asking for confirmation
+> rm -rf some_directory
+```
+
+### Sourcing changes to rc files
+
+If you've modified your `.zshrc`/`.bashrc` file and want to see changes in the
+current terminal: `source .zshrc` or `source .bashrc`.
+
+## Git
+
+I'll write this at some point.
+[Encourage me to write it on Twitter!](https://twitter.com/grow_love)
+
+[sourcing]: "#sourcing-changes-to-rc-files"
