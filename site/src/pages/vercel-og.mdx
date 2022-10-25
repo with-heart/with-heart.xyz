@@ -223,6 +223,61 @@ better understanding of what you can and cannot do with it.
 
 ---
 
+Since it's just JSX, we can create components! Let's refactor the code we have
+so far as two components: `Container` and `Text`
+
+```tsx
+import type {ReactNode} from 'react'
+
+const Container = ({children}: {children: ReactNode}) => (
+  <div
+    style={{
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'white',
+      border: '1px solid black',
+    }}
+  >
+    {children}
+  </div>
+)
+
+const Text = ({children}: {children: ReactNode}) => (
+  <div
+    style={{
+      fontSize: 64,
+    }}
+  >
+    {children}
+  </div>
+)
+
+export default function BasicImg() {
+  return new ImageResponse(
+    (
+      <Container>
+        <Text>Hello World</Text>
+      </Container>
+    ),
+    {
+      width: 400,
+      height: 200,
+    },
+  )
+}
+```
+
+<JoinCode />
+
+<Image src="/api/img/basic?step=4" width={400} height={200} />
+
+Serving components as an image as an API response. Yum!
+
+---
+
 There's lots more to explore like automatically rendering different emoji sets,
 custom fonts, and more!
 
