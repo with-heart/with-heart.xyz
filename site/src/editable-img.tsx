@@ -142,7 +142,7 @@ export const EditableImg = ({
         alt={`${title}\n${description}`}
         key={searchString}
         width={1200}
-        height={675}
+        height={628}
         src={src}
         priority={priority}
         onLoadingComplete={() => send({type: 'loaded'})}
