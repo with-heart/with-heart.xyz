@@ -64,7 +64,12 @@ body {
 * {
   border-width: 0;
   border-style: solid;
-  border-color: var(--slate6);
+  border-color: var(--slate7);
+  outline-color: var(--slate7);
+
+  &:hover {
+    border-color: var(--slate8);
+  }
 
   &,
   &::before,
@@ -161,7 +166,25 @@ hr {
 }
 
 img {
-  margin-block-end: var(--space2);
+  grid-column: feature;
+  margin-block-end: var(--space3);
+
+  max-width: 100%;
+  height: auto;
+
+  &.responsive {
+    width: 100%;
+    height: auto;
+  }
+}
+
+label {
+  display: block;
+  font-weight: 500;
+
+  &:has(+ :is(input, textarea)) {
+    margin-bottom: var(--space1);
+  }
 }
 
 li {
@@ -214,6 +237,34 @@ details {
   }
 }
 
+textarea {
+  line-height: 1.5;
+}
+
+textarea,
+input {
+  border-width: 1px;
+  padding: 0.5em 1em;
+  outline-color: var(--slate8);
+  background-color: var(--slate3);
+  font-size: 0.9em;
+  width: 100%;
+  max-width: 60ch;
+  margin-block-end: var(--space2);
+
+  &:hover {
+    background-color: var(--slate4);
+  }
+
+  &:focus {
+    background-color: var(--slate5);
+  }
+
+  &:has(+ label) {
+    margin-bottom: var(--space2);
+  }
+}
+
 :is(p, ol, ul, pre) {
   margin-block-end: var(--space4);
 
@@ -231,6 +282,10 @@ details {
   font-size: var(--font-sm);
   font-weight: 400;
   margin-block-end: var(--space4);
+
+  &:has(+ hr) {
+    margin-block-end: 0;
+  }
 }
 
 :has(+ hr) {
@@ -283,8 +338,22 @@ h2#table-of-contents + ul {
   cursor: pointer;
 }
 
-.mb-4 {
-  margin-block-end: var(--space4);
+@for $i from 0 through 8 {
+  .mb-#{$i} {
+    margin-block-end: var(--space#{$i});
+  }
+}
+
+.p-sm {
+  padding: var(--space2);
+}
+
+.b-1 {
+  border-width: 1px;
+}
+
+.width-full {
+  width: 100%;
 }
 
 /* shiki style overrides */
@@ -293,11 +362,16 @@ pre {
   width: min-content;
   max-width: 100vw;
   border-width: 1px;
-  border-color: var(--slate8);
   padding: var(--space1);
 
   @media (min-width: $bp2) {
     padding: var(--space2) var(--space4);
+  }
+
+  &:hover {
+    .code-title {
+      border-color: var(--slate8);
+    }
   }
 
   code {
@@ -356,6 +430,12 @@ pre {
       }
     }
   }
+
+  .code-title {
+    display: inline-block;
+    font-size: 0.6em;
+    border-bottom-width: 1px;
+  }
 }
 
 .twoslash-error {
@@ -403,4 +483,40 @@ h1 {
       margin-left: -0.5em;
     }
   }
+}
+
+header,
+footer {
+  grid-column: feature;
+  justify-self: center;
+}
+
+blockquote {
+  grid-column: popout;
+}
+
+pre {
+  grid-column: feature;
+  justify-self: center;
+}
+
+img {
+  grid-column: feature;
+  justify-self: center;
+}
+
+.content {
+  grid-column: content;
+}
+
+.popout {
+  grid-column: popout;
+}
+
+.feature {
+  grid-column: feature;
+}
+
+.full {
+  grid-column: full;
 }

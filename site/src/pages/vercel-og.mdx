@@ -1,0 +1,236 @@
+---
+title: 'Generating dynamic social card images with `@vercel/og`'
+description:
+  'Harnessing the power of Next.js and `@vercel/og` to dynamically generate some
+  pretty cool images that work great as social cards!'
+---
+
+# {title}
+
+<p className="subtitle">{description}</p>
+
+<Image
+  src="/api/img/bordered?title=Hi! Hello! Howdy! 🤠&description=Welcome to this here article, partner!"
+  alt="A decorative image that says 'Hi! Hello! Howdy!' and 'Welcome to this here article, partner!'"
+  width={1200}
+  height={675}
+  priority
+/>
+
+---
+
+## Table of Contents
+
+## Just show me the code already
+
+Okay! Here's how I did it:
+[site/src/pages/api/img/bordered.tsx](https://github.com/with-heart/with-heart.xyz/blob/main/site/src/pages/api/img/bordered.tsx)
+
+Think you can do it better?
+[Open a PR!](https://github.com/with-heart/with-heart.xyz) I'd love to explore
+it with you 💕
+
+## What's a social card?
+
+By themselves, links are pretty boring. They're just some text that points at a
+page somewhere on the Internet.
+
+With social cards (generated from [OpenGraph](https://ogp.me/) data), links
+become like online business cards for our sites. They allow us to bring our
+links to life by attaching a title, description, and image to our links to make
+them beautiful (and noticeable).
+
+The title, description, and image are specified by `meta` tags in a page's
+`head`. This means that each page can have its own unique social card!
+
+## What's so great about `@vercel/og`?
+
+While each page can have a unique social card, it can be quite a burden to then
+create an image for each page.
+
+That's where
+[`@vercel/og`](https://vercel.com/docs/concepts/functions/edge-functions/og-image-generation)
+comes in!
+
+`@vercel/og` is a library that allows us to create an
+[API route](https://nextjs.org/docs/api-routes/introduction) that generates an
+image using JSX and a subset of CSS.
+
+And the coolest part is that since it's just another route, we can dynamically
+alter the generated image by attaching search parameters to the URL
+(`/api/img/bordered?title=Title&description=Description`).
+
+Let's play with an example!
+
+I used `@vercel/og` to build a bordered image endpoint. It uses the `title` and
+`description` search params to dynamically generate the text. The emoji border
+is randomized each time the image is generated.
+
+Change the title and description fields and watch as the image and search params
+update automatically! New images might take a bit to generate, so please be
+patient! ❤️
+
+import {EditableImg} from '../editable-img'
+
+<EditableImg defaultTitle="Title" defaultDescription="Description" />
+
+Isn't that so fun‽
+
+## How to generate an image
+
+Now that we've experienced how fun and powerful `@vercel/og` is, let's use it to
+build ourselves an endpoint!
+
+First up, we need to install it: `pnpm i @vercel/og` (replace `pnpm` with your
+package manager of choice)
+
+We'll use `/api/img/basic` as our URL, so next we'll create
+`pages/api/img/basic.tsx`.
+
+Now we'll add a `default` export of a function that returns an `ImageResponse`
+called with some JSX. We'll also configure the endpoint to use the
+`experimental-edge` runtime which is required for `@vercel/og`.
+
+```tsx title="pages/api/img/basic.tsx"
+import {ImageResponse} from '@vercel/og'
+
+export const config = {
+  runtime: 'experimental-edge',
+}
+
+export default function BasicImg() {
+  return new ImageResponse(<div>Hello World</div>)
+}
+```
+
+<JoinCode />
+
+<Image
+  src="/api/img/basic"
+  width={1200}
+  height={630}
+  alt="Hello World in very tiny text compared to the size of the image as a whole"
+/>
+
+Wow, that's a big image with almost nothing in it!
+
+By default, `@vercel/og` generates images at a size of 1200x630. If we want to
+change that, we can supply the `width` and `height` options to `ImageResponse`:
+
+```tsx highlight {2-3}
+export default function BasicImg() {
+  return new ImageResponse(<div>Hello World</div>, {
+    width: 400,
+    height: 200,
+  })
+}
+```
+
+<JoinCode />
+
+<Image
+  src="/api/img/basic?step=2"
+  width={400}
+  height={200}
+  alt="Hello World that's as small as the last image except the image is much smaller relative to the size of the text"
+/>
+
+That's a little better but there's still not much to it.
+
+Let's add a few improvements:
+
+- make the font larger
+- center the text horizontally and vertically
+- add a white background
+- add a black border
+
+```tsx highlight {4-12}
+export default function BasicImg() {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 120,
+          backgroundColor: 'white',
+          border: '1px solid black',
+        }}
+      >
+        Hello World
+      </div>
+    ),
+    {
+      width: 400,
+      height: 200,
+    },
+  )
+}
+```
+
+<JoinCode />
+
+<Image src="/api/img/basic?step=3" width={400} height={200} />
+
+Neat! It's just like plain ol' CSS-in-JS. Which is great if you're a CSS-in-JS
+person, but not so great if you're not.
+
+If you're not one of those people, you're in luck because there's not much to
+it!
+
+Things are styled using a `style` object where the keys are the same `display`-
+and `max-width`-type attributes you're used to, except camelcased (`maxWidth`).
+
+And the values are strings unless they're a number but also numbers can be
+strings too if you want, because CSS is a very forgiving language 🙏
+
+One other thing to note about the above image is that the outer container needs
+to have a `width` and `height` of `100%` in order for `flex` to center the text:
+
+```tsx highlight {3-4}
+<div
+  style={{
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 120,
+    backgroundColor: 'white',
+    border: '1px solid black',
+  }}
+>
+  Hello World
+</div>
+```
+
+---
+
+There are also a few other differences we need to be aware of! The underlying
+library that `@vercel/og` uses to generate the images is
+[`@vercel/satori`](https://github.com/vercel/satori).
+
+Satori handles only a subset of the CSS spec. It includes common features, but
+it's limited in many ways (like `flex` and `none` being the only options for
+`display`). The Satori README
+[contains a table with the supported properties](https://github.com/vercel/satori#css).
+
+If you plan to use `@vercel/og`, be sure to look through the table to get a
+better understanding of what you can and cannot do with it.
+
+---
+
+There's lots more to explore like automatically rendering different emoji sets,
+custom fonts, and more!
+
+Unfortunately, I'm out of time and energy for this page at the moment. Maybe
+I'll add more content later!
+
+In the meantime, be sure to
+[follow me on Twitter](https://twitter.com/grow_love), check out
+[the official Vercel OG Image Generation documentation](https://vercel.com/docs/concepts/functions/edge-functions/og-image-generation),
+and play around with
+[the OG Image Playground](https://og-playground.vercel.app/)!

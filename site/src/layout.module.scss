@@ -14,6 +14,7 @@ used here.
   --popout: minmax(0, 2rem);
   --feature: minmax(0, 5rem);
 
+  position: relative;
   display: grid;
   grid-template-columns:
     [full-start] var(--full)
@@ -30,35 +31,8 @@ used here.
     grid-column: content;
   }
 
-  .popout {
-    grid-column: popout;
-  }
-
-  .feature {
-    grid-column: feature;
-  }
-
-  .full {
-    grid-column: full;
-  }
-
   &:not(:has(> header)),
   footer {
     padding-block-start: var(--space5);
-  }
-
-  header,
-  footer {
-    grid-column: feature;
-    justify-self: center;
-  }
-
-  blockquote {
-    grid-column: popout;
-  }
-
-  pre {
-    grid-column: feature;
-    justify-self: center;
   }
 }

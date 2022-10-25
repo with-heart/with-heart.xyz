@@ -102,6 +102,7 @@ const Content = ({children}: {children: ReactNode}) => {
         flexDirection: 'column',
         maxWidth: '75vw',
         lineHeight: 1.5,
+        paddingBottom: 40,
       }}
     >
       {children}
@@ -137,7 +138,7 @@ const Title = ({children}: {children: string}) => {
   )
 }
 
-const Text = ({children}: {children: ReactNode}) => {
+const Text = ({children}: {children: string}) => {
   return (
     <div
       style={{
@@ -147,6 +148,7 @@ const Text = ({children}: {children: ReactNode}) => {
         flexWrap: 'wrap',
         fontSize: 40,
         maxWidth: '80vw',
+        textAlign: 'center',
       }}
     >
       {children}
@@ -161,10 +163,8 @@ export default async function BorderedImage(req: NextRequest) {
   const height = 675
 
   const {searchParams} = new URL(req.url)
-  const title = searchParams.get('title') ?? 'Hello World'
-  const description =
-    searchParams.get('description') ??
-    'Examining an age-old phrase used to greet the world for some reason'
+  const title = searchParams.get('title') ?? ''
+  const description = searchParams.get('description') ?? ''
 
   return new ImageResponse(
     (
